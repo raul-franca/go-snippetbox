@@ -1,0 +1,16 @@
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/raul-franca/go-snippetbox.git
+git push -u origin main
+
+go mod init github.com/raul-franca/go-snippetbox
+
+cd $HOME/code/snippetbox
+rm main.go
+mkdir -p cmd/web pkg ui/html ui/static $ touch cmd/web/main.go
+touch cmd/web/handlers.go
+
+touch ui/html/home.page.tmpl
+touch ui/html/base.layout.tmpl
