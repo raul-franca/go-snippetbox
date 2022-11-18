@@ -16,3 +16,4 @@ touch ui/html/home.page.tmpl
 touch ui/html/base.layout.tmpl
 touch ui/html/footer.partial.tmpl
 curl https://www.alexedwards.net/static/sb.v130.tar.gz | tar -xvz -C ./ui/static/
+find ./ui/static -type d -exec touch {}/index.html \;
