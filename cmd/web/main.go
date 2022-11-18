@@ -23,9 +23,7 @@ func main() {
 
 	//log.New() criar um logger para escrever mensagens de informação.
 	//Parâmetros: o destino para gravar os logs (os.Stdout), uma string
-	//prefixo para mensagem "INFO\t",  log.Ldate|log.Ltime
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-	// Criar message de error segue a mesma fórmula; add |log.Lshortfile para indicar o arq
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	// Initialize a new instance of application containing the dependencies.
@@ -34,23 +32,12 @@ func main() {
 		infoLog:  infoLog,
 	}
 
-	// http.NewServeMux() inicializa um novo servemux
-	mux := http.NewServeMux()
-	// Registra home function como handler para "/" URL
-	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/snippet", app.showSnippet)
-	mux.HandleFunc("/snippet/create", app.createSnippet)
-
-	// Cria um file server de "./ui/static" directory.
-	fileServer := http.FileServer(http.Dir("./ui/static/"))
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
-
 	// cria um struct http.Server com Addr, Handler, ErrorLog personalizado
 	// aumenta o codigo mas facilita o entendimento
 	srv := &http.Server{
 		Addr:     *addr,
 		ErrorLog: errorLog,
-		Handler:  mux,
+		Handler:  app.routes(),
 	}
 
 	//log.Printf("Starting server on %s", *addr)
