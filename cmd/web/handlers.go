@@ -3,29 +3,14 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 )
 
-func showSnippet(w http.ResponseWriter, r *http.Request) {
-	// Extrai o valor da query string e tenta convert para integer com strconv.Atoi()
-	// convert it to an integer using the strconv.Atoi() function.
-	// se nao convert ou o valor for menor que 1,retorna 404 page // not found response.
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
-	if err != nil || id < 1 {
-		http.NotFound(w, r)
-		return
-	}
-	// Use the fmt.Fprintf() function to interpolate the id value with our response
-	//and write it to the http.ResponseWriter.
-	fmt.Fprintf(w, "Display a specific snippet with ID %d...", id)
-}
-
-func home(w http.ResponseWriter, r *http.Request) {
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.Path != "/" {
-		http.NotFound(w, r)
+		app.notFound(w) //notFound() helper
 		return
 	}
 
@@ -39,27 +24,38 @@ func home(w http.ResponseWriter, r *http.Request) {
 	//the http.Error() function to send a generic 500 Internal Server Error
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		log.Println(err.Error())
-		http.Error(w, "Internal Server Error", 500)
+		app.serverError(w, err) // serverError() helper.
 		return
 	}
-	// content as the response body. The last parameter to Execute() represents any
-	//dynamic data that we want to pass in, which for now we'll leave as nil.
+
 	err = ts.Execute(w, nil)
 	if err != nil {
-		log.Println(err.Error())
-		http.Error(w, "Internal Server Error", 500)
+		app.serverError(w, err) // Use the serverError() helper.
 	}
 
 }
 
-func createSnippet(w http.ResponseWriter, r *http.Request) {
+func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
+	// Extrai o valor da query string e tenta convert para integer com strconv.Atoi()
+	// convert it to an integer using the strconv.Atoi() function.
+	// se nao convert ou o valor for menor que 1,retorna 404 page // not found response.
+	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil || id < 1 {
+		app.notFound(w)
+		return
+	}
+
+	fmt.Fprintf(w, "Display a specific snippet with ID %d...", id)
+}
+
+func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodPost {
 		w.Header().Set("Allow", http.MethodPost) // avisa que o method POST eeh permitido
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		//w.Write([]byte("Method não autorizado"))
-		http.Error(w, "Method não autorizado", 405)
+		//http.Error(w, "Method não autorizado", 405)
+		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
 

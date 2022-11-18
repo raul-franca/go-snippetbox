@@ -7,6 +7,11 @@ import (
 	"os"
 )
 
+type application struct {
+	errorLog *log.Logger
+	infoLog  *log.Logger
+}
+
 func main() {
 
 	// Define uma flag de linha de comando com o nome 'addr', um valor padrão de ":4000"
@@ -23,12 +28,18 @@ func main() {
 	// Criar message de error segue a mesma fórmula; add |log.Lshortfile para indicar o arq
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
+	// Initialize a new instance of application containing the dependencies.
+	app := &application{
+		errorLog: errorLog,
+		infoLog:  infoLog,
+	}
+
 	// http.NewServeMux() inicializa um novo servemux
 	mux := http.NewServeMux()
 	// Registra home function como handler para "/" URL
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/snippet", showSnippet)
-	mux.HandleFunc("/snippet/create", createSnippet)
+	mux.HandleFunc("/", app.home)
+	mux.HandleFunc("/snippet", app.showSnippet)
+	mux.HandleFunc("/snippet/create", app.createSnippet)
 
 	// Cria um file server de "./ui/static" directory.
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
