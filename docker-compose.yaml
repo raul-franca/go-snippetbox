@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: dbMySQL
+    restart: always
+    platform: linux/amd64
+    tty: true
+    volumes:
+        - ./dbMySQL:/var/lib/dbMySQL
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: snippetbox
+      MYSQL_PASSWORD: root
+    ports:
+      - 3306:3306

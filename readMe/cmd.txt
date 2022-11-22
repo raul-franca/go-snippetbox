@@ -17,3 +17,20 @@ touch ui/html/base.layout.tmpl
 touch ui/html/footer.partial.tmpl
 curl https://www.alexedwards.net/static/sb.v130.tar.gz | tar -xvz -C ./ui/static/
 find ./ui/static -type d -exec touch {}/index.html \;
+
+docker exec -it mysql bash
+
+mysql -u root -p
+
+CREATE USER 'web'@'localhost';
+
+GRANT SELECT, INSERT, UPDATE ON snippetbox.* TO 'web'@'localhost';
+
+-- Important: Make sure to swap 'pass' with a password of your own choosing. ALTER USER 'web'@'localhost' IDENTIFIED BY 'pass';
+
+go get github.com/go-sql-driver/mysql
+
+cd $HOME/code/snippetbox
+mkdir -p pkg/models/mysql
+touch pkg/models/models.go
+touch pkg/models/mysql/snippets.go
