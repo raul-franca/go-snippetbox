@@ -49,18 +49,28 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
+	//
+	//if r.Method != http.MethodPost {
+	//	w.Header().Set("Allow", http.MethodPost) // avisa que o method POST eeh permitido
+	//	w.WriteHeader(http.StatusMethodNotAllowed)
+	//	//w.Write([]byte("Method não autorizado"))
+	//	//http.Error(w, "Method não autorizado", 405)
+	//	app.clientError(w, http.StatusMethodNotAllowed)
+	//	return
+	//}
 
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost) // avisa que o method POST eeh permitido
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		//w.Write([]byte("Method não autorizado"))
-		//http.Error(w, "Method não autorizado", 405)
-		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
-
-	_, err := w.Write([]byte("Create a new snippet..."))
+	// Create some variables holding dummy data. We'll remove these later on
+	// during the build.
+	title := "O snail"
+	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi Issa"
+	expires := "7"
+	// Pass the data to the SnippetModel.Insert() method, receiving the // ID of the new record back.
+	id, err := app.snippets.Insert(title, content, expires)
 	if err != nil {
+		app.serverError(w, err)
 		return
 	}
+	// Redirect the user to the relevant page for the snippet.
+	http.Redirect(w, r, fmt.Sprintf("/snippet?id=%d", id), http.StatusSeeOther)
+
 }
