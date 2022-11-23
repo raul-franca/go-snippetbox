@@ -63,7 +63,7 @@ func main() {
 }
 
 func openDB(dsn string) (*sql.DB, error) {
-	// The sql.Open() function initializes a new sql.DB object, which is essentially a
+	// sql.Open() function initializes a new sql.DB object, which is essentially a
 	//pool of database connections.
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {

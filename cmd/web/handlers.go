@@ -1,8 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"html/template"
+	"github.com/raul-franca/go-snippetbox/pkg/models"
 	"net/http"
 	"strconv"
 )
@@ -14,24 +15,35 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := []string{
-		"./ui/html/home.page.tmpl",
-		"./ui/html/base.layout.tmpl",
-		"./ui/html/footer.partial.tmpl",
-	}
-
-	// template.ParseFiles() le os template.
-	//the http.Error() function to send a generic 500 Internal Server Error
-	ts, err := template.ParseFiles(files...)
+	s, err := app.snippets.Latest()
 	if err != nil {
-		app.serverError(w, err) // serverError() helper.
+		app.serverError(w, err)
 		return
 	}
 
-	err = ts.Execute(w, nil)
-	if err != nil {
-		app.serverError(w, err) // Use the serverError() helper.
+	for _, snippet := range s {
+		fmt.Fprintf(w, "%v\n", snippet)
 	}
+
+	//
+	//files := []string{
+	//	"./ui/html/home.page.tmpl",
+	//	"./ui/html/base.layout.tmpl",
+	//	"./ui/html/footer.partial.tmpl",
+	//}
+	//
+	//// template.ParseFiles() le os template.
+	////the http.Error() function to send a generic 500 Internal Server Error
+	//ts, err := template.ParseFiles(files...)
+	//if err != nil {
+	//	app.serverError(w, err) // serverError() helper.
+	//	return
+	//}
+	//
+	//err = ts.Execute(w, nil)
+	//if err != nil {
+	//	app.serverError(w, err) // Use the serverError() helper.
+	//}
 
 }
 
@@ -45,7 +57,20 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Display a specific snippet with ID %d...", id)
+	// Use the SnippetModel object's Get method to retrieve the data for a
+	//specific record based on its ID. If no matching record is found,
+	// return a 404 Not Found response.
+	s, err := app.snippets.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+	// Escreva o snippet como plain-text HTTP response body.
+	fmt.Fprintf(w, "%v", s)
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
