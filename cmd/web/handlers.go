@@ -49,8 +49,8 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	// Extrai o valor da query string e tenta convert para integer com strconv.Atoi()
-	// convert it to an integer using the strconv.Atoi() function.
-	// se nao convert ou o valor for menor que 1,retorna 404 page // not found response.
+	// converta-o em um número inteiro usando a função strconv.Atoi().
+	// Se nao convert ou o valor for menor que 1,retorna 404 page // not found response.
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
 		app.notFound(w)

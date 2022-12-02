@@ -6,12 +6,12 @@ services:
     container_name: dbMySQL
     restart: always
     platform: linux/amd64
-    tty: true
+    tty: false
     volumes:
-        - ./dbMySQL:/var/lib/dbMySQL
+        - ./dbMySQL:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: snippetbox
       MYSQL_PASSWORD: root
+      MYSQL_DATABASE: snippetbox
     ports:
       - 3306:3306
