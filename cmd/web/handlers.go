@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/raul-franca/go-snippetbox/pkg/models"
-	"html/template"
 	"net/http"
 	"strconv"
 )
@@ -21,23 +20,8 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
-
-	// Create an instance of a templateData struct holding the slice de snippets.
-	data := &templateData{Snippets: s}
-	files := []string{"./ui/html/home.page.tmpl",
-		"./ui/html/base.layout.tmpl",
-		"./ui/html/footer.partial.tmpl",
-	}
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-	// Passe a estrutura templateData ao executar o modelo.
-	err = ts.Execute(w, data)
-	if err != nil {
-		app.serverError(w, err)
-	}
+	// Use the new render helper.
+	app.render(w, r, "home.page.tmpl", &templateData{Snippets: s})
 
 }
 
@@ -60,26 +44,10 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
-	//Crie uma instância de uma templateData contendo os dados do snippet.
-	data := &templateData{Snippet: s}
-
-	files := []string{
-		"./ui/html/show.page.tmpl",
-		"./ui/html/base.layout.tmpl",
-		"./ui/html/footer.partial.tmpl",
-	}
-
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	err = ts.Execute(w, data)
-	if err != nil {
-		app.serverError(w, err)
-	}
+	// Use the new render helper.
+	app.render(w, r, "show.page.tmpl", &templateData{
+		Snippet: s,
+	})
 
 }
 

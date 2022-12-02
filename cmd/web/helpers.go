@@ -25,3 +25,19 @@ func (app *application) clientError(w http.ResponseWriter, status int) {
 func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }
+
+func (app *application) render(w http.ResponseWriter, r *http.Request, name string, td *templateData) {
+	// Recupera o modelo apropriado definido do cache com base no nome da página
+	// (como 'home.page.tmpl'). Se nenhuma entrada existir no cache com o
+	// nome fornecido, chame o método auxiliar serverError que criamos anteriormente.
+	ts, ok := app.templateCache[name]
+	if !ok {
+		app.serverError(w, fmt.Errorf("The template %s does not exist", name))
+		return
+	}
+	// Execute the template set, passing in any dynamic data.
+	err := ts.Execute(w, td)
+	if err != nil {
+		app.serverError(w, err)
+	}
+}

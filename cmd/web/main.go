@@ -5,15 +5,17 @@ import (
 	"flag"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/raul-franca/go-snippetbox/pkg/models/mysql"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
 )
 
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	snippets *mysql.SnippetModel
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	snippets      *mysql.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -40,11 +42,18 @@ func main() {
 	}
 	defer db.Close()
 
-	// Initialize a new instance of application containing the dependencies.
+	// Initialize a new template cache...
+	templateCache, err := newTemplateCache("./ui/html/")
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
+	// Inicializar uma nova instance da application contendo as dependências.
 	app := &application{
-		errorLog: errorLog,
-		infoLog:  infoLog,
-		snippets: &mysql.SnippetModel{DB: db},
+		errorLog:      errorLog,
+		infoLog:       infoLog,
+		snippets:      &mysql.SnippetModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	// cria um struct http.Server com Addr, Handler, ErrorLog personalizado
