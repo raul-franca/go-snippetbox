@@ -22,13 +22,14 @@ func main() {
 
 	// Define uma flag de linha de comando com o nome 'addr', um valor padrão de ":4000"
 	//e um texto ajuda explicando o que o flag controla
+	//no path root $ go run . -addr=":8000"
 	addr := flag.String("addr", ":4000", "HTTP network address")
 
 	// Define uma nova command-line flag for the MySQL DSN string.
 	dsn := flag.String("dsn", "root:root@/snippetbox?parseTime=true", "MySQL data source name")
 
 	//A função flag.Parse() le se a flag foi usada no command-line e altera seu valor se usada
-	//no path root $ go run . -addr=":8000"
+
 	flag.Parse()
 
 	//log.New() criar um logger para escrever mensagens de informação.

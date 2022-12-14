@@ -34,3 +34,5 @@ cd $HOME/code/snippetbox
 mkdir -p pkg/models/mysql
 touch pkg/models/models.go
 touch pkg/models/mysql/snippets.go
+
+ go run ./cmd/web -addr=":8000"
