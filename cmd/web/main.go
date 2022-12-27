@@ -49,7 +49,7 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
-	// Inicializar uma nova instance da application contendo as dependências.
+	// Inicializar uma nova instance a application contendo as dependências.
 	app := &application{
 		errorLog:      errorLog,
 		infoLog:       infoLog,
