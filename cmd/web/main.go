@@ -4,21 +4,27 @@ import (
 	"database/sql"
 	"flag"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golangcollege/sessions"
 	"github.com/raul-franca/go-snippetbox/pkg/models/mysql"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 type application struct {
 	errorLog      *log.Logger
 	infoLog       *log.Logger
 	snippets      *mysql.SnippetModel
+	session       *sessions.Session
 	templateCache map[string]*template.Template
 }
 
 func main() {
+
+	secret := flag.String("secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "Secret key")
+	flag.Parse()
 
 	// Define uma flag de linha de comando com o nome 'addr', um valor padrão de ":4000"
 	//e um texto ajuda explicando o que o flag controla
@@ -49,23 +55,25 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
+	session := sessions.New([]byte(*secret))
+	session.Lifetime = 12 * time.Hour
+
 	// Inicializar uma nova instance a application contendo as dependências.
 	app := &application{
 		errorLog:      errorLog,
 		infoLog:       infoLog,
+		session:       session,
 		snippets:      &mysql.SnippetModel{DB: db},
 		templateCache: templateCache,
 	}
 
 	// cria um struct http.Server com Addr, Handler, ErrorLog personalizado
-	// aumenta o codigo mas facilita o entendimento
 	srv := &http.Server{
 		Addr:     *addr,
 		ErrorLog: errorLog,
 		Handler:  app.routes(),
 	}
 
-	//log.Printf("Starting server on %s", *addr)
 	infoLog.Printf("Starting server on %s", *addr)
 
 	//err := http.ListenAndServe(*addr, mux)
