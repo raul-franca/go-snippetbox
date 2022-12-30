@@ -9,6 +9,23 @@ import (
 	"strconv"
 )
 
+// todo User Authentication
+func (app *application) signupUserForm(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "Display formulário de inscrição do usuário...")
+}
+func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Criar um novo usuário...")
+}
+func (app *application) loginUserForm(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Display formulário de login do usuário...")
+}
+func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Autenticar e logar o usuário...")
+}
+func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "logout do usuário...")
+}
+
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	s, err := app.snippets.Latest()

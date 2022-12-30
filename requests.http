@@ -1,9 +1,30 @@
 
 ###
-GET http://localhost:4000
+GET https://localhost:4000
 
 ###
-POST http://localhost:4000/snippet/1
+POST https://localhost:4000/snippet/1
 
 ###
-GET http://localhost:4000/snippet/create
+GET https://localhost:4000/snippet/1
+
+###
+GET https://localhost:4000/snippet/create
+
+###
+GET https://localhost:4000/user/signup
+
+###
+POST https://localhost:4000/user/signup
+
+###
+GET https://localhost:4000/user/login
+
+###
+POST https://localhost:4000/user/login
+
+###
+POST https://localhost:4000/user/logout
+
+###
+GET https://localhost:4000/static/
