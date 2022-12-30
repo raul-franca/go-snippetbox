@@ -8,15 +8,15 @@ import (
 )
 
 // Create a custom Form struct, which anonymously embeds a url.Values object
-//(to hold the form data) and an Errors field to hold any validation errors
-//for the form data.
+// (to hold the form data) and an Errors field to hold any validation errors
+// for the form data.
 type Form struct {
 	url.Values
 	Errors errors
 }
 
 // Define a New function to initialize a custom Form struct. Notice that
-//this takes the form data as the parameter?
+// this takes the form data as the parameter?
 func New(data url.Values) *Form {
 	return &Form{
 		data,
@@ -25,7 +25,7 @@ func New(data url.Values) *Form {
 }
 
 // Implement a Required method to check that specific fields in the form
-//data are present and not blank. If any fields fail this check, add the
+// data are present and not blank. If any fields fail this check, add the
 // appropriate message to the form errors.
 func (f *Form) Required(fields ...string) {
 	for _, field := range fields {
@@ -37,8 +37,8 @@ func (f *Form) Required(fields ...string) {
 }
 
 // Implement a MaxLength method to check that a specific field in the form
-//contains a maximum number of characters. If the check fails then add the
-//appropriate message to the form errors.
+// contains a maximum number of characters. If the check fails then add the
+// appropriate message to the form errors.
 func (f *Form) MaxLength(field string, d int) {
 	value := f.Get(field)
 	if value == "" {
