@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"flag"
 	_ "github.com/go-sql-driver/mysql"
@@ -67,17 +68,28 @@ func main() {
 		templateCache: templateCache,
 	}
 
+	tlsConfig := &tls.Config{
+		PreferServerCipherSuites: true,
+		CurvePreferences: []tls.CurveID{tls.X25519,
+			tls.CurveP256},
+	}
+
 	// cria um struct http.Server com Addr, Handler, ErrorLog personalizado
 	srv := &http.Server{
-		Addr:     *addr,
-		ErrorLog: errorLog,
-		Handler:  app.routes(),
+		Addr:      *addr,
+		ErrorLog:  errorLog,
+		Handler:   app.routes(),
+		TLSConfig: tlsConfig,
 	}
 
 	infoLog.Printf("Starting server on %s", *addr)
 
 	//err := http.ListenAndServe(*addr, mux)
-	err = srv.ListenAndServe()
+
+	// Use the ListenAndServeTLS() method to start the HTTPS server. We
+	// pass in the paths to the TLS certificate and corresponding private key as
+	//the two parameters.
+	err = srv.ListenAndServeTLS("code/snipptbox/tls/cert.pem", "code/snipptbox/tls/key.pem")
 	errorLog.Fatal(err)
 
 }

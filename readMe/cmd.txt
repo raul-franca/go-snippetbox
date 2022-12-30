@@ -36,3 +36,5 @@ touch pkg/models/models.go
 touch pkg/models/mysql/snippets.go
 
  go run ./cmd/web -addr=":8000"
+
+ go run /opt/homebrew/Cellar/go/1.19.2/libexec/src/crypto/tls/generate_cert.go --rsa-bits=2048 --host=localhost

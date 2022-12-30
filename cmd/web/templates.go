@@ -14,6 +14,7 @@ import (
 // para ele à medida que a construção progride.
 type templateData struct {
 	CurrentYear int
+	Flash       string
 	Form        *forms.Form
 	Snippet     *models.Snippet
 	Snippets    []*models.Snippet
