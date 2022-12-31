@@ -12,6 +12,9 @@ GET https://localhost:4000/snippet/1
 GET https://localhost:4000/snippet/create
 
 ###
+POST https://localhost:4000/snippet/create
+
+###
 GET https://localhost:4000/user/signup
 
 ###

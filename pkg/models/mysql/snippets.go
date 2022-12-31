@@ -53,7 +53,7 @@ func (m *SnippetModel) Get(id int) (*models.Snippet, error) {
 			return nil, err
 		}
 	}
-	// Se tudo deu certo então retorne o objeto Snippet.
+
 	return s, nil
 
 }
@@ -62,45 +62,42 @@ func (m *SnippetModel) Latest() ([]*models.Snippet, error) {
 
 	stmt := `SELECT id, title, content, created, expires FROM snippets WHERE expires > UTC_TIMESTAMP() 
              ORDER BY created DESC LIMIT 10`
-	// Use the Query() method on the connection pool to execute our SQL statement.
+	// Use o Query() method no pool de conexão para executar nossa instrução SQL.
 	// This returns a sql.Rows resultset containing the result of our query.
 	rows, err := m.DB.Query(stmt)
 	if err != nil {
 		return nil, err
 	}
-	// We defer rows.Close() to ensure the sql.Rows resultset is
-	// always properly closed before the Latest() method returns. This defer
-	//statement should come *after* you check for an error from the Query()
-	//Otherwise, if Query() returns an error, you'll get a panic
-	// trying to close a nil resultset.
+	// Adiamos rows.Close() para garantir que o conjunto de resultados sql.Rows seja
+	// sempre fechado corretamente antes que o método Latest() retorne. isso adia
+	//instrução deve vir *depois* de você verificar se há um erro no Query()
+	//Caso contrário, se Query() retornar um erro, você entrará em pânico
+	// tentando fechar um conjunto de resultados nulo.
 	defer rows.Close()
-	// Initialize an empty slice to hold the models.Snippets objects.
+
 	snippets := []*models.Snippet{}
-	// Use rows.Next to iterate through the rows in the resultset. This
-	// prepares the first (and then each subsequent) row to be acted on by the
-	// rows.Scan() method. If iteration over all the rows completes then the // resultset automatically closes itself and frees-up the underlying
-	// database connection.
+
 	for rows.Next() {
-		// Create a pointer to a new zeroed Snippet struct.
+		// Cria um ponteiro para um novo Snippet struct zerado.
 		s := &models.Snippet{}
-		// Use rows.Scan() to copy the values from each field in the row to the // new Snippet object that we created. Again, the arguments to row.Scan() // must be pointers to the place you want to copy the data into, and the // number of arguments must be exactly the same as the number of
-		// columns returned by your statement.
+		// Use rows.Scan() para copiar os valores de cada campo na linha para o
+		//devem ser ponteiros para o local onde você deseja copiar os dados e o
+		//número de argumentos deve ser exatamente igual ao número de
+		// colunas retornadas por sua instrução.
 		err = rows.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
 		if err != nil {
 			return nil, err
 		}
-		// Append it to the slice of snippets.
 		snippets = append(snippets, s)
 	}
-	// When the rows.Next() loop has finished we call rows.Err() to retrieve any
-	//error that was encountered during the iteration. It's important to
-	// call this - don't assume that a successful iteration was completed
-	// over the whole resultset.
+	// Quando o rows.Next() loop terminou, chamamos rows.Err() para recuperar qualquer
+	// erro que foi encontrado durante a iteração. é importante
+	// chame isso - não assuma que uma iteração bem-sucedida foi concluída
+	// sobre o conjunto de resultados.
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 
-	// If everything went OK then return the Snippets slice.
 	return snippets, nil
 }
 

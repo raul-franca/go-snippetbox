@@ -28,8 +28,6 @@ func main() {
 	secret := flag.String("secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "Secret key")
 	flag.Parse()
 
-	// Define uma flag de linha de comando com o nome 'addr', um valor padrão de ":4000"
-	//e um texto ajuda explicando o que o flag controla
 	//no path root $ go run . -addr=":8000"
 	addr := flag.String("addr", ":4000", "HTTP network address")
 

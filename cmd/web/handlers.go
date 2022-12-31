@@ -9,21 +9,91 @@ import (
 	"strconv"
 )
 
-// todo User Authentication
+// TODO: User Authentication
 func (app *application) signupUserForm(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Display formulário de inscrição do usuário...")
+	app.render(w, r, "signup.page.tmpl", &templateData{
+		Form: forms.New(nil)})
 }
+
 func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Criar um novo usuário...")
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	// Validate the form contents using the form helper.
+	form := forms.New(r.PostForm)
+	form.Required("name", "email", "password")
+	form.MaxLength("name", 255)
+	form.MaxLength("email", 255)
+	form.MatchesPattern("email", forms.EmailRX)
+	form.MinLength("password", 10)
+	// If there are any errors, redisplay the signup form.
+	if !form.Valid() {
+		app.render(w, r, "signup.page.tmpl", &templateData{Form: form})
+		return
+	}
+
+	// Try to create a new user record in the database. If the email already exists
+	// add an error message to the form and re-display it.
+	err = app.users.Insert(form.Get("name"), form.Get("email"), form.Get("password"))
+	if err != nil {
+		if errors.Is(err, models.ErrDuplicateEmail) {
+			form.Errors.Add("email", "Address is already in use")
+			app.render(w, r, "signup.page.tmpl", &templateData{Form: form})
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	app.session.Put(r, "flash", "Your signup was successful. Please log in.")
+	// redirecionar o usuário para o login page.
+	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }
+
 func (app *application) loginUserForm(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Display formulário de login do usuário...")
+	app.render(w, r, "login.page.tmpl", &templateData{
+		Form: forms.New(nil),
+	})
 }
+
 func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Autenticar e logar o usuário...")
+
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+	}
+
+	// Check se as credenciais são válidas. Se não estiverem, adicione um erro genérico
+	form := forms.New(r.PostForm)
+	id, err := app.users.Authenticate(form.Get("email"), form.Get("password"))
+	if err != nil {
+		if errors.Is(err, models.ErrInvalidCredentials) {
+			form.Errors.Add("generic", "Email or Password is incorrect")
+			app.render(w, r, "login.page.tmpl", &templateData{Form: form})
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+	// Add O ID do usuário para a sessão, 'logged in'.
+	app.session.Put(r, "authenticatedUserID", id)
+	// Redirecione o usuário para a página de criação de snippet.
+	http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
+
 }
+
 func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "logout do usuário...")
+	// Remove the authenticatedUserID dos dados da sessão para que o usuário seja 'logged out'.
+	app.session.Remove(r, "authenticatedUserID")
+	// Add a flash message à sessão para confirmar ao usuário que ele foi logged out.
+	app.session.Put(r, "flash", "You've been logged out successfully!")
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (app *application) isAuthenticated(r *http.Request) bool {
+	return app.session.Exists(r, "authenticatedUserID")
 }
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -48,10 +118,8 @@ func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
-	// First we call r.ParseForm() which adds any data in POST request bodies
-	// to the r.PostForm map. This also works in the same way for PUT and PATCH
-	// requests. If there are any errors, we use our app.ClientError helper to send
-	//a 400 Bad Request response to the user.
+	// Primeiro nós chamamos r.ParseForm()que recebe os dados do POST request bodies
+	// Isso também funciona da mesma maneira para PUT e PATCH
 	err := r.ParseForm()
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
@@ -64,8 +132,6 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	form.MaxLength("title", 100)
 	form.PermittedValues("expires", "365", "7", "1")
 
-	// If the form isn't valid, redisplay the template passing in the
-	//form.Form object as the data.
 	if !form.Valid() {
 		app.render(w, r, "create.page.tmpl", &templateData{Form: form})
 		return

@@ -7,5 +7,6 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+.pem
 .mysql/
 dbMySQL/
