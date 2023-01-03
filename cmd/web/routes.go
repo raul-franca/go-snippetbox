@@ -22,7 +22,7 @@ func (app *application) routes() http.Handler {
 
 	// com alice -> http dMiddleware e bmizerany/pat
 	standardMiddleware := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
-	dynamicMiddleware := alice.New(app.session.Enable, noSurf)
+	dynamicMiddleware := alice.New(app.session.Enable, noSurf, app.authenticate)
 
 	mux := pat.New()
 

@@ -21,6 +21,13 @@ func (app *application) addDefaultData(td *templateData, r *http.Request) *templ
 
 	return td
 }
+func (app *application) isAuthenticated(r *http.Request) bool {
+	isAuthenticated, ok := r.Context().Value(contextKeyIsAuthenticated).(bool)
+	if !ok {
+		return false
+	}
+	return isAuthenticated
+}
 
 // serverError helper writes an error message and stack trace to the errorLog,
 // then sends a generic 500 Internal Server Error response to the user.

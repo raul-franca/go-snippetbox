@@ -43,10 +43,11 @@ func (m *UserModel) Insert(name, email, password string) error {
 
 // Authenticate method para verificar se existe um usuário com
 // e-mail e a senha fornecidos. retornara o user ID
+// Recupera o id e a senha com hash associados ao e-mail fornecido. Se não
+// existe um e-mail correspondente ou o usuário não está ativo, retornamos o
+// Erro ErrInvalidCredentials.
 func (m *UserModel) Authenticate(email, password string) (int, error) {
-	// Recupera o id e a senha com hash associados ao e-mail fornecido. Se não
-	// existe um e-mail correspondente ou o usuário não está ativo, retornamos o
-	// Erro ErrInvalidCredentials.
+
 	var id int
 	var hashedPassword []byte
 	stmt := "SELECT id, hashed_password FROM users WHERE email = ? AND active = TRUE"
@@ -59,8 +60,7 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 			return 0, err
 		}
 	}
-	// Check whether the hashed password and plain-text password provided match.
-	// If they don't, we return the ErrInvalidCredentials error.
+
 	err = bcrypt.CompareHashAndPassword(hashedPassword, []byte(password))
 	if err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
@@ -75,5 +75,16 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 
 // Get method para buscar detalhes de um usuário específico com base em seu ID
 func (m *UserModel) Get(id int) (*models.User, error) {
-	return nil, nil
+	u := &models.User{}
+	stmt := `SELECT id, name, email, created, active FROM users WHERE id = ?`
+	err := m.DB.QueryRow(stmt, id).Scan(&u.ID, &u.Name, &u.Email, &u.Created, &u.Active)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrNoRecord
+		} else {
+			return nil, err
+		}
+	}
+	
+	return u, nil
 }
