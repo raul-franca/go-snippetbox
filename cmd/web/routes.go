@@ -20,13 +20,10 @@ func (app *application) routes() http.Handler {
 	//mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 	//return mux
 
-	// Create a new middleware chain containing the middleware specific to
-	//our dynamic application routes. For now, this chain will only contain
-	//the session middleware but we'll add more to it later.
-	dynamicMiddleware := alice.New(app.session.Enable)
-
 	// com alice -> http dMiddleware e bmizerany/pat
 	standardMiddleware := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
+	dynamicMiddleware := alice.New(app.session.Enable, noSurf)
+
 	mux := pat.New()
 
 	mux.Get("/", dynamicMiddleware.ThenFunc(app.home))
