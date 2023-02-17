@@ -31,3 +31,6 @@ POST https://localhost:4000/user/logout
 
 ###
 GET https://localhost:4000/static/
+
+###
+GET  https://localhost:4000/ping/

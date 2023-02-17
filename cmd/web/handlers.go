@@ -170,5 +170,4 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "show.page.tmpl", &templateData{
 		Snippet: s,
 	})
-
 }
